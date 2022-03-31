@@ -4,7 +4,7 @@ const express = require('express')
 const passport = require('passport')
 
 // pull in Mongoose model for examples
-const Example = require('../models/example')
+const Cat = require('../models/cat')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -29,42 +29,42 @@ const router = express.Router()
 
 // INDEX
 // GET /examples
-router.get('/examples', requireToken, (req, res, next) => {
-	Example.find()
-		.then((examples) => {
+router.get('/cats', (req, res, next) => {
+	Cat.find()
+		.then((cats) => {
 			// `examples` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
 			// apply `.toObject` to each one
-			return examples.map((example) => example.toObject())
+			return cats.map((cat) => cat.toObject())
 		})
 		// respond with status 200 and JSON of the examples
-		.then((examples) => res.status(200).json({ examples: examples }))
+		.then((cats) => res.status(200).json({ cats: cats }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
 
 // SHOW
 // GET /examples/5a7db6c74d55bc51bdf39793
-router.get('/examples/:id', requireToken, (req, res, next) => {
+router.get('/cats/:id', (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
-	Example.findById(req.params.id)
+	Cat.findById(req.params.id)
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "example" JSON
-		.then((example) => res.status(200).json({ example: example.toObject() }))
+		.then((cat) => res.status(200).json({ cat: cat.toObject() }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
 
 // CREATE
 // POST /examples
-router.post('/examples', requireToken, (req, res, next) => {
+router.post('/cats', (req, res, next) => {
 	// set owner of new example to be current user
-	req.body.example.owner = req.user.id
+	//req.body.example.owner = req.user.id
 
-	Example.create(req.body.example)
+	Cat.create(req.body.cat)
 		// respond to succesful `create` with status 201 and JSON of new "example"
-		.then((example) => {
-			res.status(201).json({ example: example.toObject() })
+		.then((cat) => {
+			res.status(201).json({ cat: cat.toObject() })
 		})
 		// if an error occurs, pass it off to our error handler
 		// the error handler needs the error message and the `res` object so that it
@@ -74,20 +74,20 @@ router.post('/examples', requireToken, (req, res, next) => {
 
 // UPDATE
 // PATCH /examples/5a7db6c74d55bc51bdf39793
-router.patch('/examples/:id', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/cats/:id', removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
-	delete req.body.example.owner
+	//delete req.body.example.owner
 
-	Example.findById(req.params.id)
+	Cat.findById(req.params.id)
 		.then(handle404)
-		.then((example) => {
+		.then((cat) => {
 			// pass the `req` object and the Mongoose record to `requireOwnership`
 			// it will throw an error if the current user isn't the owner
-			requireOwnership(req, example)
+			//requireOwnership(req, cat)
 
 			// pass the result of Mongoose's `.update` to the next `.then`
-			return example.updateOne(req.body.example)
+			return cat.updateOne(req.body.cat)
 		})
 		// if that succeeded, return 204 and no JSON
 		.then(() => res.sendStatus(204))
@@ -97,14 +97,14 @@ router.patch('/examples/:id', requireToken, removeBlanks, (req, res, next) => {
 
 // DESTROY
 // DELETE /examples/5a7db6c74d55bc51bdf39793
-router.delete('/examples/:id', requireToken, (req, res, next) => {
-	Example.findById(req.params.id)
+router.delete('/cats/:id', (req, res, next) => {
+	Cat.findById(req.params.id)
 		.then(handle404)
-		.then((example) => {
+		.then((cat) => {
 			// throw an error if current user doesn't own `example`
-			requireOwnership(req, example)
+			//requireOwnership(req, cat)
 			// delete the example ONLY IF the above didn't throw
-			example.deleteOne()
+			cat.deleteOne()
 		})
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
